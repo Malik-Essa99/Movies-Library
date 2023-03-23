@@ -1,34 +1,46 @@
 'use strict'
 
-const express = require('express')
-const app = express()
-const cors = require('cors')
-app.use(cors());
-const axios = require('axios')
 require('dotenv').config()
+////////////////////// Declarations //////////////////////
 const PORT = process.env.PORT
 const apikey = process.env.API_KEY
+const password = process.env.PASSWORD
+////////////////////// Requirements //////////////////////
+const express = require('express')
+const app = express()
+/////////////////////////////////////////////////////////
+const cors = require('cors')
+app.use(cors());
+/////////////////////////////////////////////////////////
+const axios = require('axios')
+/////////////////////////////////////////////////////////
+let bodyParser = require('body-parser')
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+/////////////////////////////////////////////////////////
+const { Client } = require('pg')
+const url = `postgres:malik:${password}@localhost:5432/moviedatabase`
+const client = new Client(url)
+/////////////////////////////////////////////////////////
 const movieData = require('./Movie Data/data.json')
 
-
-/////// Routes ///////
-
+////////////////////// Routes //////////////////////
 app.get('/', homeRouteHandler);
 app.get('/genres', genresMovieHandler);
 app.get('/person', personRouteHandler);
 app.get('/trending', trendingMovieHandler);
 app.get('/search', searchMovieHandler);
 app.get('/favorite', favoriteRouteHandler);
-app.get('/Error', causeAnError)
-app.get('*', pageNotFoundHandler)
-
-/////// Constructors ///////
-
-// function Movie(title, poster, overview) {
-//   this.title = title;
-//   this.poster = poster;
-//   this.overview = overview;
-// }
+app.post('/addMovie', addMovieHandler);
+app.get('/getMovies', getMoviesHandler)
+app.use(errorHandler);
+app.get('*', pageNotFoundHandler);
+////////////////////// Constructors //////////////////////
+function Movie(title, poster, overview) {
+  this.title = title;
+  this.poster = poster;
+  this.overview = overview;
+}
 function Movies(id, title, release_date, poster_path, overview) {
   this.id = id;
   this.title = title;
@@ -36,25 +48,20 @@ function Movies(id, title, release_date, poster_path, overview) {
   this.poster_path = poster_path;
   this.overview = overview;
 }
-/////// Functions ///////
-
+////////////////////// Functions //////////////////////
 function homeRouteHandler(req, res) {
   let newMovie = new Movie(movieData.title, movieData.poster_path, movieData.overview);
   res.json(newMovie);
 }
-
 function favoriteRouteHandler(req, res) {
   res.send("Welcome to Favorite Page");
 }
-
-function causeAnError(req, res) {
-  res.sendddddd('Error');
+function errorHandler(err, req, res) {
+  res.status(500).send(err)
 }
-
 function pageNotFoundHandler(req, res) {
   res.send('page not found!', 404);
 }
-
 function trendingMovieHandler(req, res) {
   let url = `https://api.themoviedb.org/3/trending/all/week?api_key=${apikey}`
   axios.get(url)
@@ -65,11 +72,10 @@ function trendingMovieHandler(req, res) {
       res.json(dataMovies)
 
     })
-    .catch((err) => {
-      console.log(err);
+    .catch((error) => {
+      errorHandler(error, req, res);
     });
 }
-
 function searchMovieHandler(req, res) {
   let movieName = req.query.name
   console.log(movieName)
@@ -80,9 +86,8 @@ function searchMovieHandler(req, res) {
       // console.log(result.data.results)
       res.json(searchResult)
     })
-    .catch((err) => {
-      console.log(err)
-
+    .catch((error) => {
+      errorHandler(error, req, res);
     });
 }
 function genresMovieHandler(req, res) {
@@ -95,9 +100,8 @@ function genresMovieHandler(req, res) {
       // console.log(genresResult)
       res.json(genresResult)
     })
-    .catch((err) => {
-      console.log(err)
-
+    .catch((error) => {
+      errorHandler(error, req, res);
     });
 }
 function personRouteHandler(req, res) {
@@ -111,22 +115,40 @@ function personRouteHandler(req, res) {
       // console.log(genresResult)
       res.json(personResult)
     })
-    .catch((err) => {
-      console.log(err)
-
+    .catch((error) => {
+      errorHandler(error, req, res);
     });
 }
+function addMovieHandler(req, res) {
+  // console.log(req.body);
+  let { title, posterPath, overview } = req.body
+  let values = [title, posterPath, overview]
+  let sqlQuery = `INSERT INTO movies(title,posterPath,overview) VALUES($1,$2,$3) RETURNING *`
+  client.query(sqlQuery, values)
+    .then(
+      res.status(201).send("data recieved successfully to database")
+    )
+    .catch((error) => {
+      errorHandler(error, req, res);
+    })
+}
+function getMoviesHandler(req, res) {
+  let sqlQuery = `SELECT * FROM movies;`
+  client.query(sqlQuery)
+    .then((result) => {
+      res.json(result.rows)
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    })
 
-app.use((err, req, res, next) => {
-  res.status(err.status || 500);
-  res.send({
-    error: {
-      "status": 500,
-      "responseText": "Sorry, something went wrong"
-    },
-  });
-});
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}`)
-})
+}
+client.connect().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Example app listening on port ${PORT}`)
+  })
+}).catch
+  ((error) => {
+    errorHandler(error, req, res);
+  })

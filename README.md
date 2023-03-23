@@ -47,3 +47,29 @@ The new features include:
 +search for movies
 +search for actors
 +view genres
+
+==============================
+
+# Movies-Library - v3.0
+
+**Author Name**: Malik Alhudrub
+
+## WRRC
+ [Wrrc image](./assets/Wrrc3.jpeg)
+
+## Overview
+This app is for practice purposes.
+
+## Getting Started
+on your terminal type steps are as follows:
+1. fromt the code section clone repo to your local machine
+2. Initialize : npm init -y
+3. Install Packages : npm install the required packages (express,dotenv,cors,axios,nodemon,pg,body-parser)
+4. Open vs code and run server.js file on terminal 
+
+## Project Features
+
+In this update I added two new files (schema.sql and .env.sample).
+created a new DB(moviesdatabase) and connected it to my app folder and .sql file
+Added two new routes,/addMovie will send a (post) request and will save the body content inside the database using (body-Parser and pg)
+the second routse is /getMovie will get all movie data from Database
