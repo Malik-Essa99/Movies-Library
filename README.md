@@ -73,3 +73,30 @@ In this update I added two new files (schema.sql and .env.sample).
 created a new DB(moviesdatabase) and connected it to my app folder and .sql file
 Added two new routes,/addMovie will send a (post) request and will save the body content inside the database using (body-Parser and pg)
 the second routse is /getMovie will get all movie data from Database
+
+==============================
+
+# Movies-Library - v4.0
+
+**Author Name**: Malik Alhudrub
+
+## WRRC
+ [Wrrc image](./assets/Wrrc4.jpeg)
+
+## Overview
+This app is for practice purposes.
+
+## Getting Started
+on your terminal type steps are as follows:
+1. fromt the code section clone repo to your local machine
+2. Initialize : npm init -y
+3. Install Packages : npm install the required packages (express,dotenv,cors,axios,nodemon,pg,body-parser)
+4. Open vs code and run server.js file on terminal 
+
+## Project Features
+
+In this update I added three new Routes that (Update, Delete and get) Data from database
+
++ Update by Id takes id from user as Query-Params and edits comments on database for a specific movie
++ Delete by Id takes id from user as Query-Params and deletes movie data from database for a specific movie
++ Update by Id takes id from user as Query-Params and display movie data from database for a specific movie
