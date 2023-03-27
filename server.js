@@ -32,7 +32,10 @@ app.get('/trending', trendingMovieHandler);
 app.get('/search', searchMovieHandler);
 app.get('/favorite', favoriteRouteHandler);
 app.post('/addMovie', addMovieHandler);
-app.get('/getMovies', getMoviesHandler)
+app.get('/getMovie', getMoviesHandler)
+app.put('/updateMovie/:id', updateMovieHandler)
+app.get('/getMovie/:id', getMovieByIdHandler)
+app.delete('/deleteMovie/:id', deleteMovieHandler)
 app.use(errorHandler);
 app.get('*', pageNotFoundHandler);
 ////////////////////// Constructors //////////////////////
@@ -120,10 +123,10 @@ function personRouteHandler(req, res) {
     });
 }
 function addMovieHandler(req, res) {
-  // console.log(req.body);
-  let { title, posterPath, overview } = req.body
-  let values = [title, posterPath, overview]
-  let sqlQuery = `INSERT INTO movies(title,posterPath,overview) VALUES($1,$2,$3) RETURNING *`
+
+  let { title, posterPath, overview, comments } = req.body
+  let values = [title, posterPath, overview, comments]
+  let sqlQuery = `INSERT INTO movies(title,posterPath,overview,comments) VALUES($1,$2,$3,$4) RETURNING *`;
   client.query(sqlQuery, values)
     .then(
       res.status(201).send("data recieved successfully to database")
@@ -144,6 +147,48 @@ function getMoviesHandler(req, res) {
 
 
 }
+function updateMovieHandler(req, res) {
+  let idNumber = req.params.id
+  let {comments} = req.body
+  let sqlQuery = "UPDATE movies SET comments=$1 WHERE id=$2 RETURNING *;";
+  let values = [comments,idNumber];
+  client.query(sqlQuery, values)
+    .then(result => {
+      console.log(result);
+      res.send(result.rows)
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    })
+}
+function deleteMovieHandler(req,res){
+  let idNumber = req.params.id
+  let sqlQuery = "DELETE FROM movies WHERE id=$1;";
+  let values = [idNumber];
+  client.query(sqlQuery, values)
+    .then(result => {
+      res.status(204).send("Deleted")
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    })
+}
+function getMovieByIdHandler(req,res){
+
+  let idNumber = req.params.id
+
+  let sqlQuery = `SELECT * FROM movies WHERE id=$1;`
+  let values = [idNumber];
+  client.query(sqlQuery,values)
+    .then((result) => {
+      res.json(result.rows)
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    })
+
+}
+
 client.connect().then(() => {
   app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`)
