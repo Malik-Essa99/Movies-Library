@@ -149,9 +149,9 @@ function getMoviesHandler(req, res) {
 }
 function updateMovieHandler(req, res) {
   let idNumber = req.params.id
-  let {comments} = req.body
+  let { comments } = req.body
   let sqlQuery = "UPDATE movies SET comments=$1 WHERE id=$2 RETURNING *;";
-  let values = [comments,idNumber];
+  let values = [comments, idNumber];
   client.query(sqlQuery, values)
     .then(result => {
       console.log(result);
@@ -161,7 +161,7 @@ function updateMovieHandler(req, res) {
       errorHandler(error, req, res);
     })
 }
-function deleteMovieHandler(req,res){
+function deleteMovieHandler(req, res) {
   let idNumber = req.params.id
   let sqlQuery = "DELETE FROM movies WHERE id=$1;";
   let values = [idNumber];
@@ -173,13 +173,13 @@ function deleteMovieHandler(req,res){
       errorHandler(error, req, res);
     })
 }
-function getMovieByIdHandler(req,res){
+function getMovieByIdHandler(req, res) {
 
   let idNumber = req.params.id
 
   let sqlQuery = `SELECT * FROM movies WHERE id=$1;`
   let values = [idNumber];
-  client.query(sqlQuery,values)
+  client.query(sqlQuery, values)
     .then((result) => {
       res.json(result.rows)
     })
