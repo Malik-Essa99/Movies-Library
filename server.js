@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 /////////////////////////////////////////////////////////
 const { Client } = require('pg')
-const url = `postgres:malik:${password}@localhost:5432/moviedatabase`
+const url = `postgres:malik:${password}@localhost:5432/moviesdatabase`
 const client = new Client(url)
 /////////////////////////////////////////////////////////
 const movieData = require('./Movie Data/data.json')
@@ -54,13 +54,14 @@ function Movies(id, title, release_date, poster_path, overview) {
 ////////////////////// Functions //////////////////////
 function homeRouteHandler(req, res) {
   let newMovie = new Movie(movieData.title, movieData.poster_path, movieData.overview);
-  res.json(newMovie);
+  // res.json(newMovie);
+  res.send("Hello");
 }
 function favoriteRouteHandler(req, res) {
   res.send("Welcome to Favorite Page");
 }
 function errorHandler(err, req, res) {
-  res.status(500).send(err)
+  res.send(err)
 }
 function pageNotFoundHandler(req, res) {
   res.send('page not found!', 404);
@@ -193,7 +194,6 @@ client.connect().then(() => {
   app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`)
   })
-}).catch
-  ((error) => {
+}).catch((error) => {
     errorHandler(error, req, res);
   })
