@@ -4,7 +4,8 @@ require('dotenv').config()
 ////////////////////// Declarations //////////////////////
 const PORT = process.env.PORT
 const apikey = process.env.API_KEY
-const password = process.env.PASSWORD
+// const password = process.env.PASSWORD
+const url_db = process.env.DATABASE_URL
 ////////////////////// Requirements //////////////////////
 const express = require('express')
 const app = express()
@@ -19,8 +20,8 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 /////////////////////////////////////////////////////////
 const { Client } = require('pg')
-const url = `postgres:malik:${password}@localhost:5432/moviesdatabase`
-const client = new Client(url)
+const url = process.env.DATABASE_URL
+const client = new Client(url_db)
 /////////////////////////////////////////////////////////
 const movieData = require('./Movie Data/data.json')
 
