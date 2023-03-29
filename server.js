@@ -195,5 +195,5 @@ client.connect().then(() => {
     console.log(`Example app listening on port ${PORT}`)
   })
 }).catch((error) => {
-    errorHandler(error, req, res);
+    // errorHandler(error);
   })
